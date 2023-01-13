@@ -1,0 +1,37 @@
+name: Deploy to AKS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build image
+      run: |
+        docker build -t my-flask-app .
+
+    - name: Login to Azure
+      run: az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+      env:
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+    - name: Push to ACR
+      run: |
+        az acr build --registry $ACR_NAME --image my-flask-app:${{ github.sha }} .
+      env:
+        ACR_NAME: ${{ secrets.ACR_NAME }}
+
+    - name: Deploy to AKS
+      run: |
+        kubectl set image deployment/my-flask-app my-flask-app=${ACR_NAME}.azurecr.io/my-flask-app:${{ github.sha }}
+      env:
+        ACR_NAME: ${{ secrets.ACR_NAME }}
