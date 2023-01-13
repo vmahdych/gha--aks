@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: my-flask-app
+  name: my-flask-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-flask-app
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: my-flask-app
+    spec:
+      containers:
+        - image: my-flask-app:0.0.1
+          name: my-flask-app
+          resources: {}
+          imagePullPolicy: Never
+          ports:
+          - containerPort: 5000

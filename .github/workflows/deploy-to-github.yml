@@ -1,0 +1,38 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Build and test app
+      run: |
+        pytest
+        python app.py
+
+    - name: Deploy to GitHub Pages
+      run: |
+        git config --global user.email "$EMAIL"
+        git config --global user.name "$USER_NAME"
+        git remote set-url origin https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
+        git branch -M main
+        git push -f origin main:gh-pages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        EMAIL: ${{ secret.EMAIL }}
+        USER_NAME: ${{ secret.NAME }}
