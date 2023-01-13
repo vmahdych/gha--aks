@@ -1,12 +1,20 @@
-FROM python:3.8-slim-buster
+#FROM python:3.8-slim-buster
+#
+#COPY . /app
+#WORKDIR /app
+#
+#RUN pip install --upgrade pip
+#RUN pip install -r requirements.txt
+#
+#CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
+#
 
-COPY . /app
+FROM python:3.10-buster
+
 WORKDIR /app
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+COPY . .
 
-EXPOSE 5000
+RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "app.py"]
-
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
