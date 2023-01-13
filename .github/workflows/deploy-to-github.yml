@@ -14,10 +14,13 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Set up Python
+      uses: actions/setup/python@v1
+      with:
+        python-version: "3.8"
+
+    - name: Install dependencies
       run: |
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Build and test app
